@@ -51,7 +51,8 @@ class dbEyes {
                 leftEyePixels.setPixelColor(5, leftEyePixels.Color(0, 0, 255, 0));
                 leftEyePixels.setPixelColor(6, leftEyePixels.Color(0, 0, 255, 0));
                 leftEyePixels.show();
-                delay(5000);
+                // delay(5000);
+                set_interrupt(5000);
             } else if (iteration == 1) {
                 leftEyePixels.setPixelColor(0, leftEyePixels.Color(0, 0, 255, 0));
                 leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
@@ -59,14 +60,16 @@ class dbEyes {
                 leftEyePixels.setPixelColor(3, leftEyePixels.Color(0, 0, 255, 0));
                 leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
                 leftEyePixels.show();
-                delay(100);
+                // delay(100);
+                set_interrupt(100);
             } else if (iteration == 2) {
                 leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
                 leftEyePixels.setPixelColor(2, leftEyePixels.Color(0, 0, 255, 0));
                 leftEyePixels.setPixelColor(3, leftEyePixels.Color(0, 0, 255, 0));
                 leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
                 leftEyePixels.show();
-                delay(300);
+                // delay(300);
+                set_interrupt(300);
             } else {
                 leftEyePixels.setPixelColor(0, leftEyePixels.Color(0, 0, 255, 0));
                 leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
@@ -74,10 +77,26 @@ class dbEyes {
                 leftEyePixels.setPixelColor(3, leftEyePixels.Color(0, 0, 255, 0));
                 leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
                 leftEyePixels.show();
-                delay(100);
+                // delay(100);
+                set_interrupt(100);
             }
 
             iteration = (iteration + 1) % 4;
+        }
+
+        ISR(TIMER1_COMPA_vect) {
+            TNCT1 = t1_load;
+            blink(155);
+        }
+
+        void set_interrupt(int millis) {
+            // 1. calculate the number of ticks
+
+            // 2. reset Timer1 and set compare value
+
+            // 3. enable Timer1 overflow interrupt
+
+            // 4. enable global interrupts
         }
 
     public:
