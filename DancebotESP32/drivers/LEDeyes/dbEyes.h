@@ -7,14 +7,12 @@
  */
 #pragma once
 #include <Adafruit_NeoPixel.h>
+#include <math.h>
+
+#define PI 3.142
 
 class dbEyes {
     public:
-        explicit dbEyes(int pin){
-            leftEyePixels = Adafruit_NeoPixel(7, pin, NEO_RGBW+NEO_KHZ800);
-            leftEyePixels.begin();
-        }
-
         enum Expression{
             RESET,
             CLEAR,
@@ -26,125 +24,154 @@ class dbEyes {
             WINKY
         };
 
+    private:
+        Adafruit_NeoPixel leftEyePixels;
+        Expression expression = Expression::RESET;
+        static const int NUM_PIXELS = 7;
 
+    private:
+        void fade() {
+            static int ledValue = 0;
+            static float brightnessLevel = 0;
 
-        void set_expression(Expression expression){
-            pixels.clear();
-            switch (expression){
+            leftEyePixels.setBrightness((150/2)*cos(ledValue/1000)+(150/2));
+            ledValue = (ledValue + 1) % ((int) PI*1000*2);
+        }
+
+        void blink(float brightness) {
+            static int iteration = 0;
+
+            leftEyePixels.setBrightness(brightness);
+
+            if (iteration == 0) {
+                leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(2, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(3, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(5, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(6, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.show();
+                delay(5000);
+            } else if (iteration == 1) {
+                leftEyePixels.setPixelColor(0, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(2, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(3, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.show();
+                delay(100);
+            } else if (iteration == 2) {
+                leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(2, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(3, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.show();
+                delay(300);
+            } else {
+                leftEyePixels.setPixelColor(0, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(2, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(3, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
+                leftEyePixels.show();
+                delay(100);
+            }
+
+            iteration = (iteration + 1) % 4;
+        }
+
+    public:
+        explicit dbEyes(int pin) {
+            leftEyePixels = Adafruit_NeoPixel(7, pin, NEO_RGBW+NEO_KHZ800);
+            leftEyePixels.begin();
+        }
+
+        void run_expression() {
+            leftEyePixels.clear();
+
+            switch (expression) {
+                static int ledID = 0;
                 case Expression::LOADING:
-                    leftEyePixels.clear();
-                    int num = 0;
-                    while(true){
-                        leftEyePixels.setBrightness(10);
-                        leftEyePixels.setPixelColor(num, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.show();
-                        delay(1000);
-                        leftEyePixels.clear();
-                        num++;
-                        if (num==7){
-                        num=0;
-                        }
-                    }
-                case Expression::CLEAR:
-                    leftEyePixels.clear();
+                    leftEyePixels.setBrightness(10);
+                    leftEyePixels.setPixelColor(ledID, leftEyePixels.Color(0, 0, 255, 0));
+                    leftEyePixels.show();
+                    ledID = (ledID + 1) % NUM_PIXELS;
+                    break;
+
                 case Expression::HAPPY:
-                    leftEyePixels.clear();
-                    int value=0;
-                    while (true){
-                        float num = (150/2)*cos(value)+(150/2);
-                        leftEyePixels.setBrightness(num);
-                        leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.setPixelColor(5, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.setPixelColor(6, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.show();
-                        value=value+.001;
-                    }
-                case Expression::SAD:
-                    leftEyePixels.clear();
-                    int value=0;
-                    while (true){
-                        //LEFT EYE
-                        float num = (150/2)*cos(value)+(150/2);
-                        leftEyePixels.setBrightness(num);
-                        leftEyePixels.setPixelColor(0, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.setPixelColor(3, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.setPixelColor(6, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.show();
-                        value=value+.001;
-                    }
-                case Expression::LOWKEY:
-                    int value=0;
-                    while(true){
-                        int num = (150/2)*cos(value)+(150/2);
-                        leftEyePixels.setBrightness(num);
-                        leftEyePixels.setPixelColor(0, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.show();
-                        value=value+.001;
-                        delay(1);
-                    }
-                case Expression::WINKY:
-                    leftEyePixels.clear();
-                    int value=0;
-                        while (true){        
-                        //LEFT EYE                    
-                        float num = (150/2)*cos(value)+(150/2);
-                        leftEyePixels.setBrightness(num);
-                        leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.setPixelColor(5, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.setPixelColor(6, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
-                        leftEyePixels.show();
-                        value=value+.001;
-                    }
-                default:
-                    float num=155;
-                    leftEyePixels.clear();
-                    leftEyePixels.setBrightness(num);
-                    leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
-                    leftEyePixels.setPixelColor(2, leftEyePixels.Color(0, 0, 255, 0));
-                    leftEyePixels.setPixelColor(3, leftEyePixels.Color(0, 0, 255, 0));
+                    fade();
                     leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
                     leftEyePixels.setPixelColor(5, leftEyePixels.Color(0, 0, 255, 0));
                     leftEyePixels.setPixelColor(6, leftEyePixels.Color(0, 0, 255, 0));
+                    leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
                     leftEyePixels.show();
-                    delay(5000);
-                    blink(155); 
+                    break;
+
+                case Expression::SAD:
+                    fade();
+                    leftEyePixels.setPixelColor(0, leftEyePixels.Color(0, 0, 255, 0));
+                    leftEyePixels.setPixelColor(3, leftEyePixels.Color(0, 0, 255, 0));
+                    leftEyePixels.setPixelColor(6, leftEyePixels.Color(0, 0, 255, 0));
+                    leftEyePixels.show();
+                    break;
+
+                case Expression::LOWKEY:
+                    fade();
+                    leftEyePixels.setPixelColor(0, leftEyePixels.Color(0, 0, 255, 0));
+                    leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
+                    leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
+                    leftEyePixels.show();
+                    break;
+
+                case Expression::WINKY:
+                    fade();
+                    leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
+                    leftEyePixels.setPixelColor(5, leftEyePixels.Color(0, 0, 255, 0));
+                    leftEyePixels.setPixelColor(6, leftEyePixels.Color(0, 0, 255, 0));
+                    leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
+                    leftEyePixels.show();
+                    break;
+
+                case Expression::CLEAR:
+                    break;
+
+                default:
+                    blink(155);
                     break;
             }
         }
 
-        void blink(int brightness){
+        void set_expression(Expression _expression) {
             leftEyePixels.clear();
-            leftEyePixels.setBrightness(brightness);
-            leftEyePixels.setPixelColor(0, leftEyePixels.Color(0, 0, 255, 0));
-            leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
-            leftEyePixels.setPixelColor(2, leftEyePixels.Color(0, 0, 255, 0));
-            leftEyePixels.setPixelColor(3, leftEyePixels.Color(0, 0, 255, 0));
-            leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
-            leftEyePixels.show();
-            delay(100);
-            leftEyePixels.clear();
-            leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
-            leftEyePixels.setPixelColor(2, leftEyePixels.Color(0, 0, 255, 0));
-            leftEyePixels.setPixelColor(3, leftEyePixels.Color(0, 0, 255, 0));
-            leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
-            leftEyePixels.show();
-            delay(300);
-            leftEyePixels.clear();
-            leftEyePixels.setBrightness(brightness);
-            leftEyePixels.setPixelColor(0, leftEyePixels.Color(0, 0, 255, 0));
-            leftEyePixels.setPixelColor(1, leftEyePixels.Color(0, 0, 255, 0));
-            leftEyePixels.setPixelColor(2, leftEyePixels.Color(0, 0, 255, 0));
-            leftEyePixels.setPixelColor(3, leftEyePixels.Color(0, 0, 255, 0));
-            leftEyePixels.setPixelColor(4, leftEyePixels.Color(0, 0, 255, 0));
-            leftEyePixels.show();
-            delay(100);
+            expression = _expression;
         }
 
-    private:
-        Adafruit_NeoPixel leftEyePixels;
-
+        Expression get_expression() {
+            return expression;
+        }
 };
+
+// int main()
+// {
+//     dbEyes robotEyes = dbEyes(0);
+//     robotEyes.set_expression(robotEyes.HAPPY);
+//     while(1) {
+//         if (updateState() != "") {
+//             // check for each type of expression
+//             dbEyes::Expression newExpression = robotEyes.get_expression();
+//             // set the relevant enum
+//             if (updateState() == "angry") {
+//                 newExpression = dbEyes::ANGRY;
+//             }
+//             ...
+//             robotEyes.set_expression(newExpression);
+//         }
+//         robotEyes.run_expression();
+//         // timer
+//     }
+//     return 1;
+// }
+
+
+// interrupt 1: change expressions -> clears everythings, goes to the next expression
+// interrupt 2: blink, timer based eye movements -> calls the next iteration of the eye expression
