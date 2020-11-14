@@ -21,21 +21,22 @@ class dbEyes {
             SAD,
             LOWKEY,
             ANGRY,
-            WINKY
+            WINKY,
+            BLINK
         };
 
     private:
         Adafruit_NeoPixel leftEyePixels;
         Expression expression = Expression::RESET;
         static const int NUM_PIXELS = 7;
+        float ledValue;
 
     private:
         void fade() {
-            static int ledValue = 0;
-            static float brightnessLevel = 0;
-
-            leftEyePixels.setBrightness((150/2)*cos(ledValue/1000)+(150/2));
-            ledValue = (ledValue + 1) % ((int) PI*1000*2);
+            leftEyePixels.setBrightness((150/2)*cos(ledValue)+(150/2));
+            ledValue = ledValue + .001;
+            if (ledValue > 2*PI)
+                ledValue = 0;
         }
 
         void blink(float brightness) {
@@ -103,6 +104,7 @@ class dbEyes {
         explicit dbEyes(int pin) {
             leftEyePixels = Adafruit_NeoPixel(7, pin, NEO_RGBW+NEO_KHZ800);
             leftEyePixels.begin();
+            ledValue = 0;
         }
 
         void run_expression() {
@@ -151,11 +153,15 @@ class dbEyes {
                     leftEyePixels.show();
                     break;
 
+                case Expression::BLINK:
+                    blink(100);
+                    break;
+
                 case Expression::CLEAR:
                     break;
 
                 default:
-                    blink(155);
+                    blink(100);
                     break;
             }
         }
@@ -170,26 +176,26 @@ class dbEyes {
         }
 };
 
-// int main()
-// {
-//     dbEyes robotEyes = dbEyes(0);
-//     robotEyes.set_expression(robotEyes.HAPPY);
-//     while(1) {
-//         if (updateState() != "") {
-//             // check for each type of expression
-//             dbEyes::Expression newExpression = robotEyes.get_expression();
-//             // set the relevant enum
-//             if (updateState() == "angry") {
-//                 newExpression = dbEyes::ANGRY;
-//             }
-//             ...
-//             robotEyes.set_expression(newExpression);
-//         }
-//         robotEyes.run_expression();
-//         // timer
-//     }
-//     return 1;
-// }
+/* int main()
+{
+    dbEyes robotEyes = dbEyes(0);
+    robotEyes.set_expression(robotEyes.HAPPY);
+    while(1) {
+        if (updateState() != "") {
+            // check for each type of expression
+            dbEyes::Expression newExpression = robotEyes.get_expression();
+            // set the relevant enum
+            if (updateState() == "angry") {
+                newExpression = dbEyes::ANGRY;
+            }
+            ...
+            robotEyes.set_expression(newExpression);
+        }
+        robotEyes.run_expression();
+        // timer
+    }
+    return 1;
+} */
 
 
 // interrupt 1: change expressions -> clears everythings, goes to the next expression
